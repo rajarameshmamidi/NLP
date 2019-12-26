@@ -1,3 +1,4 @@
+# https://www.youtube.com/watch?v=xvqsFTUsOmc&t=1952s
 # Web scraping, pickle imports
 import requests
 from bs4 import BeautifulSoup
@@ -100,15 +101,26 @@ def clean_text_round1(text):
     '''Make text lowercase, remove text in square brackets, remove punctuation and remove words containing numbers.'''
     text = text.lower()
     #print('text after changing to lower case:- %s' %(text))
-    text = re.sub('\[.*?\]', '', text) # removws brackets
-    text = re.sub('[%s]' % re.escape(string.punctuation), '', text) # removes 
-    text = re.sub('\w*\d\w*', '', text)
+    text = re.sub('\[.*?\]', '', text) # removes brackets.
+    text = re.sub('[%s]' % re.escape(string.punctuation), '', text) # removes punctuation markes from a string.
+    text = re.sub('\w*\d\w*', '', text) # \w* means remove numbers from a string \d removes digitis from string.
     return text
-round1 = lambda x: clean_text_round1(x)
+round1 = lambda x: clean_text_round1(x) # lambda is an anonymous function in python which used at run time.
 #print(round1)
 # Let's take a look at the updated text
-data_clean = pd.DataFrame(data_df.transcript.apply(round1))
-#data_clean
+#----------------------------------------------------------------
+# other way to use apply function in pandas
+#df = pd.read_csv(r'C:\Users\rrmamidi\Desktop\to windows 10\compress_1\python\meachin learning doc\About nltk\adashofdata\transcripts\ali.txt', encoding="ISO-8859-1", error_bad_lines=False)
+#print(df)
+#dfobj = pd.DataFrame(df, columns = list('a'))
+#print(dfobj)
+#modobj = [clean_text_round1(x) for x in dfobj]
+#modobj = dfobj['a'].apply(clean_text_round1)
+#print('clean data:- '+ str(modobj))
+#----------------------------------------------------------------
+data_clean = pd.DataFrame(data_df.transcript.apply(round1)) # apply is padans function to pass arguments to a function. In this example we are passing data_df.transcript data to clean_text_round1 function to remove unwanted characters'. Here transcript is a column name and data_df is pandas dataframe.
+data_clean
+
 
 # Apply a second round of cleaning
 def clean_text_round2(text):
@@ -170,7 +182,7 @@ for c in data.columns:
     top = data[c].sort_values(ascending=False).head(5)
     top_dict[c]= list(zip(top.index, top.values))
 top_dict
-print(top_dict)
+#print(top_dict)
 
 # Print the top 5 words said by each comedian
 for comedian, top_words in top_dict.items():
@@ -201,7 +213,10 @@ data_clean = pd.read_pickle(r'C:\Users\rrmamidi\Desktop\to windows 10\compress_1
 #print(data_clean.index()) #builtins.TypeError: 'Index' object is not callable
 # Add new stop words
 stop_words = text.ENGLISH_STOP_WORDS.union(add_stop_words) # text is imported from sklearn.feature_extraction library/module
-#print(stop_words)
+#print('stop words are:-'+str(stop_words))
+#for a in stop_words:
+#    print(a)
+    
 # Recreate document-term matrix
 cv = CountVectorizer(stop_words=stop_words) # CountVectorizer imported from sklearn.feature_extraction.text 
 data_cv = cv.fit_transform(data_clean.transcript)
@@ -213,14 +228,14 @@ pickle.dump(cv, open(r'C:\Users\rrmamidi\Desktop\to windows 10\compress_1\python
 data_stop.to_pickle(r'C:\Users\rrmamidi\Desktop\to windows 10\compress_1\python\meachin learning doc\About nltk\adashofdata\pickel\dtm_stop.pkl')
 
 # Let's make some word clouds!
-# = WordCloud(stopwords=stop_words, background_color="white", colormap="Dark2",
+#wc = WordCloud(stopwords=stop_words, background_color="white", colormap="Dark2",
 #               max_font_size=150, random_state=42)
 wc = WordCloud(stopwords=stop_words, background_color="white", colormap="Dark2",
-               max_font_size=150, random_state=42)
+               width=480, height=480, margin=0)
 # Reset the output dimensions
 #plt.rcParams['figure.figsize'] = [16, 6]
-plt.rcParams['figure.figsize'] = [20, 15]
-#plt.rcParams['figure.figsize'] = [10, 6]
+#plt.rcParams['figure.figsize'] = [10,2]
+plt.rcParams['figure.figsize'] = [10, 6]
 
 full_names = ['Ali Wong']
 
@@ -228,8 +243,8 @@ full_names = ['Ali Wong']
 for index, comedian in enumerate(data.columns):
     wc.generate(data_clean.transcript[comedian])
     
-    #plt.subplot(3, 4, index+1)
-    plt.subplot(3, 4, index+2)
+    #plt.subplot(3, 4, index+1) # subplot is to show the image inside the main graph, index is to align based on number.
+    #plt.subplot(3, 4, index+2) 
     plt.imshow(wc, interpolation="bilinear")
     plt.axis("off")
     plt.title(full_names[index])
